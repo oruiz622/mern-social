@@ -17,6 +17,7 @@ import auth from './../auth/auth-helper'
 import {read} from './api-user.js'
 import {Redirect, Link} from 'react-router-dom'
 
+
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
     maxWidth: 600,
@@ -49,6 +50,10 @@ export default function Profile({ match }) {
         setUser(data)
       }
     })
+
+    const photoUrl = values.user._id
+        ? `/api/users/photo/${values.user._id}?${new Date().getTime()}`
+        : '/api/users/defaultphoto';
 
     return function cleanup(){
       abortController.abort()

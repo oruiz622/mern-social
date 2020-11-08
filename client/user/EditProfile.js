@@ -69,25 +69,35 @@ export default function EditProfile({ match }) {
   }, [match.params.userId])
 
   const clickSubmit = () => {
+    let userData = new FormData();
+    values.name && userData.append('name', values.name);
+    values.email && userData.append('email', values.email);
+    values.password && userData.append('password', values.password);
+    values.about && userData.append('about', values.about);
+    values.photo && userData.append('photo', values.photo);
+    
     const user = {
       name: values.name || undefined,
       email: values.email || undefined,
       password: values.password || undefined
     }
+
     update({
       userId: match.params.userId
     }, {
       t: jwt.token
-    }, user).then((data) => {
+    }, userData).then((data) => {
       if (data && data.error) {
         setValues({...values, error: data.error})
       } else {
-        setValues({...values, userId: data._id, redirectToProfile: true})
+        setValues({...values, 'redirectToProfile': true})
       }
     })
   }
+
   const handleChange = name => event => {
-    setValues({...values, [name]: event.target.value})
+    const value = name === 'photo' ? event.target.files[0] : event.target.value;
+    setValues({...values, [name]: value})
   }
 
     if (values.redirectToProfile) {
@@ -101,6 +111,18 @@ export default function EditProfile({ match }) {
           </Typography>
           <TextField id="name" label="Name" className={classes.textField} value={values.name} onChange={handleChange('name')} margin="normal"/><br/>
           <TextField id="email" type="email" label="Email" className={classes.textField} value={values.email} onChange={handleChange('email')} margin="normal"/><br/>
+          <input accept="image/*" type="file" 
+            onChange={handleChange('photo')}
+            style={{display: 'none'}}
+            id="icon-button-file"/>
+            <label htmlFor="icon-button-file">
+              <Button variant="contained" color="default" component="span">
+                Upload <FileUpload/>
+              </Button>
+            </label>
+            <span className={classes.filename}>
+              {values.photo ? values.photo.name : ''}
+            </span>
           <TextField id="multiline-flexible" label="About" multiline rows="2" value={values.about} onChange={handleChange('about')} />
           <TextField id="password" type="password" label="Password" className={classes.textField} value={values.password} onChange={handleChange('password')} margin="normal"/>
           <br/> {
